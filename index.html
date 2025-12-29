@@ -393,14 +393,86 @@
     /* Rooms Section */
     .rooms {
       background: var(--warm-sand);
+      position: relative;
     }
 
+    /* Horizontal scroll row of room cards; users can swipe/scroll sideways */
     .rooms-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      display: flex;
       gap: 32px;
-      max-width: 1200px;
-      margin: 64px auto 0;
+      max-width: 100%;
+      margin: 24px 0 0;
+      padding: 12px 12px 24px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      align-items: stretch;
+    }
+
+    /* Each card stays same width and snaps into place when scrolling */
+    .room-card {
+      flex: 0 0 340px;
+      scroll-snap-align: start;
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+    }
+
+    /* Swipe hint for mobile: hidden by default, shown via media query and JS */
+    .swipe-hint {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      bottom: 12px;
+      background: rgba(45,42,38,0.9);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      z-index: 60;
+      opacity: 0;
+      transition: opacity 320ms ease, transform 320ms ease;
+      pointer-events: none;
+    }
+
+    .swipe-hint.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .swipe-hint.hide { opacity: 0; transform: translateX(-50%) translateY(12px); }
+
+    .swipe-arrow {
+      width: 36px;
+      height: 8px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .swipe-arrow::after {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      background: rgba(45,42,38,0.95);
+      border-radius: 50%;
+      transform: translateY(-50%);
+      animation: swipe-dot 1.2s ease-in-out infinite;
+    }
+
+    @keyframes swipe-dot {
+      0% { transform: translate(0, -50%); }
+      50% { transform: translate(16px, -50%); }
+      100% { transform: translate(0, -50%); }
+    }
+
+    @media (max-width: 767px) {
+      .swipe-hint { display: flex; }
     }
 
     .room-card {
@@ -445,6 +517,28 @@
       color: var(--muted);
       margin-bottom: 20px;
       line-height: 1.7;
+    }
+
+    /* Truncated description when content is long */
+    .room-description.truncated {
+      overflow: hidden;
+      transition: max-height 300ms ease;
+    }
+
+    /* Truncated amenities list when content is long */
+    .room-amenities.truncated {
+      overflow: hidden;
+      transition: max-height 300ms ease;
+    }
+
+    .more-btn {
+      background: transparent;
+      border: none;
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 0;
+      font-size: 14px;
     }
 
     .room-amenities {
@@ -930,30 +1024,36 @@
         Cada acomodação foi pensada para oferecer o máximo de conforto e aconchego durante sua estadia.
       </p>
 
+      <div class="swipe-hint" id="swipeHint" aria-hidden="true">
+        <span class="swipe-arrow" aria-hidden="true"></span>
+        <span class="swipe-text">Arraste para ver</span>
+      </div>
+
       <div class="rooms-grid">
         <div class="room-card">
           <div class="room-image">
-            <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=800" alt="Suíte Casal">
+            <img src="imagens/suite jardim privado.png" alt="Suíte Jardim Privado">
           </div>
           <div class="room-content">
-            <h3 class="room-title">Suíte Casal</h3>
-            <p class="room-description">Perfeita para casais, com decoração acolhedora e vista para o jardim tropical.</p>
-            <div class="room-amenities">
-              <span class="room-amenity">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                Ar-condicionado
-              </span>
-              <span class="room-amenity">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
-                </svg>
-                Wi-Fi
-              </span>
+            <h3 class="room-title">Suíte Jardim Privado</h3>
+            <p class="room-description">2 camas solteiro, 1 cama de casal — Com capacidade para acomodar até quatro pessoas, a Suíte Jardim Privado oferece uma experiência única de contato com a natureza. Seja para casais, trios ou grupos de quatro pessoas, essa suíte proporciona tranquilidade e conforto, com acesso exclusivo a um jardim privativo, ideal para momentos de relaxamento ao ar livre.</p>
+            <div class="room-amenities" style="flex-wrap:wrap;">
+              <span class="room-amenity">Ar-condicionado</span>
+              <span class="room-amenity">Banheiro com chuveiro</span>
+              <span class="room-amenity">Secador de cabelos</span>
+              <span class="room-amenity">Chuveiro Quente</span>
+              <span class="room-amenity">Acesso a internet WiFi</span>
+              <span class="room-amenity">Roupa de cama</span>
+              <span class="room-amenity">Frigobar</span>
+              <span class="room-amenity">Quartos para não-fumantes</span>
+              <span class="room-amenity">Não compartilhado</span>
+              <span class="room-amenity">TV – a cabo/via satélite</span>
+              <span class="room-amenity">Terraço/patio</span>
+              <span class="room-amenity">Artigos de higiene pessoal</span>
+              <span class="room-amenity">Toalhas</span>
             </div>
             <div class="room-footer">
-              <div class="room-price">a partir de <strong>R$ 180</strong>/noite</div>
+              <div class="room-price">Consulte tarifas</div>
               <a href="https://book.securebookings.net/roomrate?id=0fcd9b37-df2d-1731334730-4622-aa91-c05f43e0b5e4&lang=br" target="_blank" class="btn btn-primary btn-small">Reservar</a>
             </div>
           </div>
@@ -961,27 +1061,54 @@
 
         <div class="room-card">
           <div class="room-image">
-            <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=800" alt="Suíte Família">
+            <img src="imagens/suite vista mar.png" alt="Suíte Vista Mar">
           </div>
           <div class="room-content">
-            <h3 class="room-title">Suíte Família</h3>
-            <p class="room-description">Espaçosa e confortável, ideal para famílias que buscam momentos especiais juntos.</p>
-            <div class="room-amenities">
-              <span class="room-amenity">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                Ar-condicionado
-              </span>
-              <span class="room-amenity">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
-                </svg>
-                Wi-Fi
-              </span>
+            <h3 class="room-title">Suíte Vista Mar</h3>
+            <p class="room-description">2 camas solteiro, 1 cama de casal — Desfrute de uma experiência única com a Suíte Vista Mar, que oferece uma vista deslumbrante para o mar. Com decoração aconchegante e detalhes rústicos, essa acomodação é ideal para relaxar e apreciar a natureza ao seu redor. Perfeita para casais, famílias e grupos de amigos ou quem busca um refúgio à beira-mar.</p>
+            <div class="room-amenities" style="flex-wrap:wrap;">
+              <span class="room-amenity">Ar-condicionado</span>
+              <span class="room-amenity">Banheiro com chuveiro</span>
+              <span class="room-amenity">Secador de cabelos</span>
+              <span class="room-amenity">Chuveiro Quente</span>
+              <span class="room-amenity">Acesso a internet WiFi</span>
+              <span class="room-amenity">Roupa de cama</span>
+              <span class="room-amenity">Frigobar</span>
+              <span class="room-amenity">Quartos para não-fumantes</span>
+              <span class="room-amenity">TV – a cabo/via satélite</span>
+              <span class="room-amenity">Artigos de higiene pessoal</span>
+              <span class="room-amenity">Toalhas</span>
             </div>
             <div class="room-footer">
-              <div class="room-price">a partir de <strong>R$ 250</strong>/noite</div>
+              <div class="room-price">Consulte tarifas</div>
+              <a href="https://book.securebookings.net/roomrate?id=0fcd9b37-df2d-1731334730-4622-aa91-c05f43e0b5e4&lang=br" target="_blank" class="btn btn-primary btn-small">Reservar</a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="room-card">
+          <div class="room-image">
+            <img src="imagens/suite vista piscina tripla.png" alt="Suíte Vista Piscina Tripla">
+          </div>
+          <div class="room-content">
+            <h3 class="room-title">Suíte Vista Piscina Tripla</h3>
+            <p class="room-description">1 cama de solteiro, 1 cama de casal — Acomode-se com conforto na Suíte Vista Piscina Tripla, com capacidade para até três pessoas. Ideal para trios ou grupos, essa suíte oferece uma vista lateral para o mar, combinando praticidade e beleza em um ambiente espaçoso e acolhedor, perfeito para relaxar e curtir a brisa do mar.</p>
+            <div class="room-amenities" style="flex-wrap:wrap;">
+              <span class="room-amenity">Ar-condicionado</span>
+              <span class="room-amenity">Sacada</span>
+              <span class="room-amenity">Banheiro com chuveiro</span>
+              <span class="room-amenity">Secador de cabelos</span>
+              <span class="room-amenity">Chuveiro Quente</span>
+              <span class="room-amenity">Acesso a internet WiFi</span>
+              <span class="room-amenity">Roupa de cama</span>
+              <span class="room-amenity">Frigobar</span>
+              <span class="room-amenity">Quartos para não-fumantes</span>
+              <span class="room-amenity">TV – a cabo/via satélite</span>
+              <span class="room-amenity">Artigos de higiene pessoal</span>
+              <span class="room-amenity">Toalhas</span>
+            </div>
+            <div class="room-footer">
+              <div class="room-price">Consulte tarifas</div>
               <a href="https://book.securebookings.net/roomrate?id=0fcd9b37-df2d-1731334730-4622-aa91-c05f43e0b5e4&lang=br" target="_blank" class="btn btn-primary btn-small">Reservar</a>
             </div>
           </div>
@@ -989,33 +1116,162 @@
 
         <div class="room-card">
           <div class="room-image">
-            <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800" alt="Suíte Premium">
+            <img src="imagens/suite vista piscina quadrupla.png" alt="Suíte Vista Piscina Quádrupla">
           </div>
           <div class="room-content">
-            <h3 class="room-title">Suíte Premium</h3>
-            <p class="room-description">Nossa melhor acomodação, com varanda privativa e vista panorâmica deslumbrante.</p>
-            <div class="room-amenities">
-              <span class="room-amenity">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                Ar-condicionado
-              </span>
-              <span class="room-amenity">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
-                </svg>
-                Wi-Fi
-              </span>
-              <span class="room-amenity">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                </svg>
-                Varanda
-              </span>
+            <h3 class="room-title">Suíte Vista Piscina Quádrupla</h3>
+            <p class="room-description">2 camas solteiro, 1 cama de casal — Acomode-se com conforto na Suíte Vista Piscina Quádrupla, com capacidade para até quatro pessoas. Ideal para famílias ou grupos, essa suíte oferece uma vista lateral para o mar, combinando praticidade e beleza em um ambiente espaçoso e acolhedor.</p>
+            <div class="room-amenities" style="flex-wrap:wrap;">
+              <span class="room-amenity">Ar-condicionado</span>
+              <span class="room-amenity">Sacada</span>
+              <span class="room-amenity">Banheiro com chuveiro</span>
+              <span class="room-amenity">Secador de cabelos</span>
+              <span class="room-amenity">Chuveiro Quente</span>
+              <span class="room-amenity">Acesso a internet WiFi</span>
+              <span class="room-amenity">Roupa de cama</span>
+              <span class="room-amenity">Frigobar</span>
+              <span class="room-amenity">Quartos para não-fumantes</span>
+              <span class="room-amenity">TV – a cabo/via satélite</span>
+              <span class="room-amenity">Artigos de higiene pessoal</span>
+              <span class="room-amenity">Toalhas</span>
             </div>
             <div class="room-footer">
-              <div class="room-price">a partir de <strong>R$ 350</strong>/noite</div>
+              <div class="room-price">Consulte tarifas</div>
+              <a href="https://book.securebookings.net/roomrate?id=0fcd9b37-df2d-1731334730-4622-aa91-c05f43e0b5e4&lang=br" target="_blank" class="btn btn-primary btn-small">Reservar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="room-card">
+          <div class="room-image">
+            <img src="imagens/suite presidencial.png" alt="Suíte Presidencial">
+          </div>
+          <div class="room-content">
+            <h3 class="room-title">Suíte Presidencial</h3>
+            <p class="room-description">1 cama king-size — Perfeita para casais, a Suíte Presidencial Vista Mar Don Ruan oferece conforto e privacidade em um ambiente exclusivo. Com vista panorâmica para o mar, essa suíte combina elegância e aconchego, proporcionando uma estadia relaxante e sofisticada à beira-mar.</p>
+            <div class="room-amenities" style="flex-wrap:wrap;">
+              <span class="room-amenity">Ar-condicionado</span>
+              <span class="room-amenity">Banheiro com chuveiro</span>
+              <span class="room-amenity">Secador de cabelos</span>
+              <span class="room-amenity">Chuveiro Quente</span>
+              <span class="room-amenity">Acesso a internet WiFi</span>
+              <span class="room-amenity">Roupa de cama</span>
+              <span class="room-amenity">Frigobar</span>
+              <span class="room-amenity">Quartos para não-fumantes</span>
+              <span class="room-amenity">TV – a cabo/via satélite</span>
+              <span class="room-amenity">Artigos de higiene pessoal</span>
+              <span class="room-amenity">Toalhas</span>
+              <span class="room-amenity">Escrivaninha</span>
+            </div>
+            <div class="room-footer">
+              <div class="room-price">Consulte tarifas</div>
+              <a href="https://book.securebookings.net/roomrate?id=0fcd9b37-df2d-1731334730-4622-aa91-c05f43e0b5e4&lang=br" target="_blank" class="btn btn-primary btn-small">Reservar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="room-card">
+          <div class="room-image">
+            <img src="imagens/suite classica quadrupla.png" alt="Suíte Clássica Quádrupla">
+          </div>
+          <div class="room-content">
+            <h3 class="room-title">Suíte Clássica Quádrupla</h3>
+            <p class="room-description">2 camas solteiro, 1 cama de casal — A Suíte Clássica Quádrupla oferece conforto e simplicidade em versões para grupos de até cinco pessoas. Com um ambiente acolhedor e funcional, é ideal para quem busca uma estadia prática e agradável.</p>
+            <div class="room-amenities" style="flex-wrap:wrap;">
+              <span class="room-amenity">Ar-condicionado</span>
+              <span class="room-amenity">Banheiro com chuveiro</span>
+              <span class="room-amenity">Secador de cabelos</span>
+              <span class="room-amenity">Chuveiro Quente</span>
+              <span class="room-amenity">Acesso a internet WiFi</span>
+              <span class="room-amenity">Roupa de cama</span>
+              <span class="room-amenity">Frigobar</span>
+              <span class="room-amenity">Quartos para não-fumantes</span>
+              <span class="room-amenity">TV – a cabo/via satélite</span>
+              <span class="room-amenity">Artigos de higiene pessoal</span>
+              <span class="room-amenity">Toalhas</span>
+            </div>
+            <div class="room-footer">
+              <div class="room-price">Consulte tarifas</div>
+              <a href="https://book.securebookings.net/roomrate?id=0fcd9b37-df2d-1731334730-4622-aa91-c05f43e0b5e4&lang=br" target="_blank" class="btn btn-primary btn-small">Reservar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="room-card">
+          <div class="room-image">
+            <img src="imagens/suite classica tripla.png" alt="Suíte Clássica Tripla">
+          </div>
+          <div class="room-content">
+            <h3 class="room-title">Suíte Clássica Tripla</h3>
+            <p class="room-description">1 cama de solteiro, 1 cama de casal — A Suíte Clássica oferece conforto e simplicidade em versões para casais ou trios. Com um ambiente acolhedor e funcional, é ideal para quem busca uma estadia prática e agradável.</p>
+            <div class="room-amenities" style="flex-wrap:wrap;">
+              <span class="room-amenity">Ar-condicionado</span>
+              <span class="room-amenity">Banheiro com chuveiro</span>
+              <span class="room-amenity">Secador de cabelos</span>
+              <span class="room-amenity">Chuveiro Quente</span>
+              <span class="room-amenity">Acesso a internet WiFi</span>
+              <span class="room-amenity">Roupa de cama</span>
+              <span class="room-amenity">Frigobar</span>
+              <span class="room-amenity">Quartos para não-fumantes</span>
+              <span class="room-amenity">TV – a cabo/via satélite</span>
+              <span class="room-amenity">Artigos de higiene pessoal</span>
+              <span class="room-amenity">Toalhas</span>
+            </div>
+            <div class="room-footer">
+              <div class="room-price">Consulte tarifas</div>
+              <a href="https://book.securebookings.net/roomrate?id=0fcd9b37-df2d-1731334730-4622-aa91-c05f43e0b5e4&lang=br" target="_blank" class="btn btn-primary btn-small">Reservar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="room-card">
+          <div class="room-image">
+            <img src="imagens/suite classica dupla.png" alt="Suíte Clássica Dupla">
+          </div>
+          <div class="room-content">
+            <h3 class="room-title">Suíte Clássica Dupla</h3>
+            <p class="room-description">2 camas solteiro — A Suíte Clássica Dupla oferece conforto e simplicidade para duas pessoas. Ambiente acolhedor e funcional, ideal para quem busca uma estadia prática e agradável.</p>
+            <div class="room-amenities" style="flex-wrap:wrap;">
+              <span class="room-amenity">Ar-condicionado</span>
+              <span class="room-amenity">Banheiro com chuveiro</span>
+              <span class="room-amenity">Secador de cabelos</span>
+              <span class="room-amenity">Chuveiro Quente</span>
+              <span class="room-amenity">Acesso a internet WiFi</span>
+              <span class="room-amenity">Roupa de cama</span>
+              <span class="room-amenity">Frigobar</span>
+              <span class="room-amenity">Quartos para não-fumantes</span>
+              <span class="room-amenity">TV – a cabo/via satélite</span>
+              <span class="room-amenity">Artigos de higiene pessoal</span>
+              <span class="room-amenity">Toalhas</span>
+            </div>
+            <div class="room-footer">
+              <div class="room-price">Consulte tarifas</div>
+              <a href="https://book.securebookings.net/roomrate?id=0fcd9b37-df2d-1731334730-4622-aa91-c05f43e0b5e4&lang=br" target="_blank" class="btn btn-primary btn-small">Reservar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="room-card">
+          <div class="room-image">
+            <img src="imagens/suite lateral mar.png" alt="Suíte Lateral Mar">
+          </div>
+          <div class="room-content">
+            <h3 class="room-title">Suíte Lateral Mar</h3>
+            <p class="room-description">2 camas solteiro, 1 cama de casal — Desfrute de uma experiência única com a Suíte Vista Lateral Mar, que oferece uma vista deslumbrante para o mar. Com decoração aconchegante e detalhes rústicos, essa acomodação é ideal para relaxar e apreciar a natureza ao seu redor.</p>
+            <div class="room-amenities" style="flex-wrap:wrap;">
+              <span class="room-amenity">Ar-condicionado</span>
+              <span class="room-amenity">Banheiro com chuveiro</span>
+              <span class="room-amenity">Secador de cabelos</span>
+              <span class="room-amenity">Chuveiro Quente</span>
+              <span class="room-amenity">Acesso a internet WiFi</span>
+              <span class="room-amenity">Frigobar</span>
+              <span class="room-amenity">Quartos para não-fumantes</span>
+              <span class="room-amenity">Não compartilhado</span>
+              <span class="room-amenity">TV – canais locais</span>
+              <span class="room-amenity">Toalhas</span>
+            </div>
+            <div class="room-footer">
+              <div class="room-price">Consulte tarifas</div>
               <a href="https://book.securebookings.net/roomrate?id=0fcd9b37-df2d-1731334730-4622-aa91-c05f43e0b5e4&lang=br" target="_blank" class="btn btn-primary btn-small">Reservar</a>
             </div>
           </div>
@@ -1225,6 +1481,79 @@
         slides[current].classList.add('active');
       }, interval);
     })();
+
+    // Truncate description and amenities per card and add a single "Ver mais" button per card
+    document.addEventListener('DOMContentLoaded', () => {
+      const thresholdDesc = 160;
+      const thresholdAmenities = 72;
+
+      document.querySelectorAll('.room-card').forEach(card => {
+        const desc = card.querySelector('.room-description');
+        const amenities = card.querySelector('.room-amenities');
+        const elements = [];
+
+        if (desc) {
+          const fullH = desc.scrollHeight;
+          if (fullH > thresholdDesc) {
+            const collapsed = Math.ceil(fullH / 2);
+            desc.style.maxHeight = collapsed + 'px';
+            desc.classList.add('truncated');
+            elements.push({ el: desc, fullHeight: fullH, collapsedHeight: collapsed });
+          }
+        }
+
+        if (amenities) {
+          amenities.style.flexWrap = amenities.style.flexWrap || 'wrap';
+          const fullH = amenities.scrollHeight;
+          if (fullH > thresholdAmenities) {
+            const collapsed = 72;
+            amenities.style.maxHeight = collapsed + 'px';
+            amenities.classList.add('truncated');
+            elements.push({ el: amenities, fullHeight: fullH, collapsedHeight: collapsed });
+          }
+        }
+
+        if (elements.length) {
+          const moreBtn = document.createElement('button');
+          moreBtn.className = 'more-btn';
+          moreBtn.type = 'button';
+          moreBtn.textContent = 'Ver mais';
+
+          let expanded = false;
+          moreBtn.addEventListener('click', () => {
+            elements.forEach(item => {
+              item.el.style.maxHeight = (!expanded) ? (item.fullHeight + 'px') : (item.collapsedHeight + 'px');
+            });
+            moreBtn.textContent = expanded ? 'Ver mais' : 'Ver menos';
+            expanded = !expanded;
+          });
+
+          const content = card.querySelector('.room-content');
+          if (content) content.appendChild(moreBtn);
+        }
+      });
+    });
+
+    // Show swipe hint once on mobile when the rooms section comes into view
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!window.matchMedia('(max-width: 767px)').matches) return;
+      const hint = document.getElementById('swipeHint');
+      const section = document.getElementById('quartos');
+      if (!hint || !section) return;
+
+      const obs = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            hint.classList.add('visible');
+            // hide after a few cycles
+            setTimeout(() => hint.classList.add('hide'), 3200);
+            observer.disconnect();
+          }
+        });
+      }, { threshold: 0.35 });
+
+      obs.observe(section);
+    });
   </script>
 </body>
 </html>
